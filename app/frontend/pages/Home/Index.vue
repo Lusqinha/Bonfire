@@ -174,9 +174,9 @@ const isLoggedIn = !!page.props.current_user
       <!-- Divider thought -->
       <section class="interlude">
         <blockquote class="interlude-quote">
-          Ler sem anotar é como viajar sem câmera — você volta com memórias,
-          mas os detalhes escorregam.
+          "A linguagem não transmite sentidos prontos — ela é o espaço onde o sentido se constrói."
         </blockquote>
+        <cite class="interlude-author">— Ernesto Laclau</cite>
       </section>
 
       <!-- CTA -->
@@ -371,8 +371,12 @@ const isLoggedIn = !!page.props.current_user
 }
 .interlude-quote {
   font-family: var(--font-serif); font-size: 22px; font-style: italic;
-  color: var(--text-2); max-width: 600px; margin: 0 auto;
+  color: var(--text-2); max-width: 600px; margin: 0 auto 16px;
   line-height: 1.6; font-weight: 400;
+}
+.interlude-author {
+  font-size: 13px; color: var(--text-3); font-style: normal;
+  display: block;
 }
 
 /* CTA */

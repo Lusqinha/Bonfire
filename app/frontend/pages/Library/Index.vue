@@ -42,7 +42,7 @@ const filtered = computed(() => props.books.filter(b => {
 
 function handleNavigate(screen, book = null) {
   if (screen === 'library') return
-  if (screen === 'book' && book) router.visit(`/books/${book.id}`)
+  if (screen === 'book' && book) router.visit(`/livros/${book.id}`)
 }
 
 function openEditor(book) {
@@ -147,7 +147,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
         <div
           v-for="book in filtered" :key="book.id"
           class="book-card"
-          @click="router.visit(`/books/${book.id}`)"
+          @click="router.visit(`/livros/${book.id}`)"
         >
           <div class="book-cover">
             <BookCover :book="book" />
@@ -175,7 +175,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
         <div
           v-for="book in filtered" :key="book.id"
           class="book-list-item"
-          @click="router.visit(`/books/${book.id}`)"
+          @click="router.visit(`/livros/${book.id}`)"
         >
           <div style="width:36px;height:50px;border-radius:4px;overflow:hidden;flex-shrink:0">
             <BookCover :book="book" />

@@ -80,7 +80,7 @@ function openNote() {
 function saveNote() {
   if (!noteForm.value.body.trim()) return
   noteSaving.value = true
-  router.post(`/books/${props.book.id}/notes`, { note: noteForm.value }, {
+  router.post(`/livros/${props.book.id}/notas`, { note: noteForm.value }, {
     onSuccess: () => {
       noteSaving.value = false
       noteOpen.value = false
@@ -93,7 +93,7 @@ function saveNote() {
 
 function deleteNote(noteId) {
   if (!confirm('Excluir esta nota?')) return
-  router.delete(`/notes/${noteId}`, {
+  router.delete(`/notas/${noteId}`, {
     onSuccess: () => { showToast('Nota excluída'); router.reload({ only: ['notes'] }) }
   })
 }
@@ -115,11 +115,11 @@ function deleteNote(noteId) {
     current-screen="book"
     :current-book="book"
     :title="book.title"
-    @navigate="(s, b) => { if (s === 'library') router.visit('/library'); else if (b) router.visit(`/books/${b.id}`) }"
+    @navigate="(s, b) => { if (s === 'library') router.visit('/biblioteca'); else if (b) router.visit(`/livros/${b.id}`) }"
     @open-editor="openEditor"
   >
     <div class="book-hero">
-      <button class="back-btn" @click="router.visit('/library')">
+      <button class="back-btn" @click="router.visit('/biblioteca')">
         <AppIcon name="chevronLeft" :size="16" /> Biblioteca
       </button>
 

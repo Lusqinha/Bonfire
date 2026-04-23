@@ -79,7 +79,7 @@ function navigate(screen, book = null) {
             Atalhos <span class="kbd" style="margin-left:auto">?</span>
           </span>
         </div>
-        <div class="nav-item" style="font-size:12px" @click="router.delete('/session')">
+        <div class="nav-item" style="font-size:12px" @click="router.delete('/sessao')">
           <AppIcon name="logout" :size="14" />
           <span class="nav-label">Sair</span>
         </div>

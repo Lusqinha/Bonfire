@@ -92,7 +92,7 @@ function fillManual() {
 
 function save() {
   saving.value = true
-  router.post('/books', { book: { ...form.value } }, {
+  router.post('/livros', { book: { ...form.value } }, {
     onSuccess: () => { saving.value = false; emit('close') },
     onError: () => { saving.value = false },
   })

@@ -10,7 +10,7 @@ const loading = ref(false)
 
 function submit() {
   loading.value = true
-  router.post('/session', { email_address: email.value, password: password.value }, {
+  router.post('/sessao', { email_address: email.value, password: password.value }, {
     onFinish: () => { loading.value = false }
   })
 }
@@ -44,7 +44,7 @@ function submit() {
       </form>
 
       <div class="login-footer">
-        Novo aqui? <a href="/registration/new" class="login-link">Criar conta</a>
+        Novo aqui? <a href="/conta/nova" class="login-link">Criar conta</a>
       </div>
     </div>
   </div>

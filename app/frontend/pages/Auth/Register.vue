@@ -13,7 +13,7 @@ const errors = computed(() => page.props.errors || {})
 
 function submit() {
   loading.value = true
-  router.post('/registration', {
+  router.post('/conta', {
     email_address: email.value,
     password: password.value,
     password_confirmation: passwordConfirmation.value,
@@ -71,7 +71,7 @@ function submit() {
       </form>
 
       <div class="auth-footer">
-        Já tem conta? <a href="/session/new" class="auth-link">Entrar</a>
+        Já tem conta? <a href="/sessao/nova" class="auth-link">Entrar</a>
       </div>
     </div>
   </div>

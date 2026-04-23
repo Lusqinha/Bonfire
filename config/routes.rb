@@ -1,27 +1,26 @@
 Rails.application.routes.draw do
-  resource :session
+  # Auth
+  resource :session, path: "sessao"
   resources :passwords, param: :token
-  resource :registration, only: %i[new create]
+  resource :registration, path: "conta", only: %i[new create]
 
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Pages
   root "home#index"
+  get "biblioteca", to: "library#index", as: :library
 
-  # English routes
-  get "library", to: "library#index", as: :library
-  resources :books do
-    resources :reading_entries, shallow: true
-    resources :notes, shallow: true
+  # Books and nested resources — PT-BR paths
+  resources :books, path: "livros" do
+    resources :reading_entries, path: "registros", shallow: true
+    resources :notes, path: "notas", shallow: true
   end
-  get "search/books", to: "search#books"
 
-  # PT-BR route aliases
-  get "biblioteca",       to: "library#index"
-  get "entrar",           to: "sessions#new"
-  get "criar-conta",      to: "registrations#new"
+  get "buscar/livros", to: "search#books"
 
-  scope path: "/livros" do
-    get "/",              to: "library#index"
-    get "/:id",           to: "books#show",    constraints: { id: /\d+/ }
-  end
+  # English aliases → redirect to PT-BR
+  get "library",           to: redirect("/biblioteca")
+  get "session/new",       to: redirect("/sessao/nova")
+  get "registration/new",  to: redirect("/conta/nova")
+  get "books/:id",         to: redirect("/livros/%{id}"), constraints: { id: /\d+/ }
 end

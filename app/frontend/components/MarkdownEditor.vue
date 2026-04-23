@@ -112,11 +112,11 @@ function save() {
   const data = { reading_entry: { body: text.value, page: page.value || null } }
 
   if (props.initialEntry) {
-    router.patch(`/books/${book.id}/reading_entries/${props.initialEntry.id}`, data, {
+    router.patch(`/livros/${book.id}/registros/${props.initialEntry.id}`, data, {
       onSuccess: () => emit('saved')
     })
   } else {
-    router.post(`/books/${book.id}/reading_entries`, data, {
+    router.post(`/livros/${book.id}/registros`, data, {
       onSuccess: () => emit('saved')
     })
   }
