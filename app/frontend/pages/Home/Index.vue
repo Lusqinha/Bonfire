@@ -1,5 +1,6 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3'
+import logoUrl from '../../assets/logo.png'
 const page = usePage()
 const isLoggedIn = !!page.props.current_user
 </script>
@@ -8,8 +9,8 @@ const isLoggedIn = !!page.props.current_user
   <div class="landing">
     <header class="nav">
       <div class="nav-brand">
-        <div class="brand-icon">📖</div>
-        <span class="brand-name">Diário de Leitura</span>
+        <img :src="logoUrl" alt="Bonfire" class="brand-logo" />
+        <span class="brand-name">Bonfire</span>
       </div>
       <div class="nav-actions">
         <template v-if="isLoggedIn">
@@ -25,6 +26,10 @@ const isLoggedIn = !!page.props.current_user
     <main>
       <!-- Hero -->
       <section class="hero">
+        <div class="hero-brand">
+          <img :src="logoUrl" alt="Bonfire" class="hero-logo" />
+          <span class="hero-brand-name">Bonfire</span>
+        </div>
         <h1 class="hero-title">Um lugar para<br /><em>acompanhar o que você lê</em></h1>
         <p class="hero-sub">
           Registre suas sessões de leitura, guarde anotações e mantenha sua biblioteca pessoal —
@@ -196,7 +201,8 @@ const isLoggedIn = !!page.props.current_user
     </main>
 
     <footer class="footer">
-      <span>Diário de Leitura</span>
+      <img :src="logoUrl" alt="Bonfire" style="width:16px;height:16px;filter:brightness(0) invert(0.4)" />
+      <span>Bonfire</span>
       <span class="footer-sep">·</span>
       <span>feito para leitores</span>
     </footer>
@@ -217,9 +223,9 @@ const isLoggedIn = !!page.props.current_user
   background: var(--bg);
 }
 .nav-brand { display: flex; align-items: center; gap: 10px; }
-.brand-icon {
-  width: 30px; height: 30px; background: var(--accent); border-radius: 7px;
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
+.brand-logo {
+  width: 28px; height: 28px; object-fit: contain;
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
 }
 .brand-name { font-family: var(--font-serif); font-size: 17px; font-weight: 600; }
 .nav-actions { display: flex; align-items: center; gap: 12px; }
@@ -241,6 +247,18 @@ const isLoggedIn = !!page.props.current_user
   text-align: center;
   padding: 100px 32px 72px;
   max-width: 680px; margin: 0 auto;
+}
+.hero-brand {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-bottom: 32px;
+}
+.hero-logo {
+  width: 48px; height: 48px; object-fit: contain;
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
+}
+.hero-brand-name {
+  font-family: var(--font-serif); font-size: 32px; font-weight: 700;
+  color: var(--accent); letter-spacing: -0.02em;
 }
 .hero-title {
   font-family: var(--font-serif); font-size: 52px; font-weight: 600;

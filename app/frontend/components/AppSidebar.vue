@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppIcon from './AppIcon.vue'
 import BookCover from './BookCover.vue'
+import logoUrl from '../assets/logo.png'
 
 const props = defineProps({
   collapsed: Boolean,
@@ -26,8 +27,8 @@ function navigate(screen, book = null) {
     </button>
 
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">📖</div>
-      <div class="sidebar-logo-text">Diário de Leitura</div>
+      <img :src="logoUrl" alt="Bonfire" class="sidebar-logo-img" />
+      <div class="sidebar-logo-text">Bonfire</div>
     </div>
 
     <nav class="sidebar-nav">
@@ -104,11 +105,9 @@ function navigate(screen, book = null) {
   border-bottom: 1px solid var(--border);
   min-height: 60px;
 }
-.sidebar-logo-icon {
-  width: 28px; height: 28px; flex-shrink: 0;
-  background: var(--accent); border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
+.sidebar-logo-img {
+  width: 26px; height: 26px; flex-shrink: 0; object-fit: contain;
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
 }
 .sidebar-logo-text {
   font-family: var(--font-serif); font-size: 15px; font-weight: 500;

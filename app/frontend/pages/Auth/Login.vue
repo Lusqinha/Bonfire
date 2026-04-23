@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import logoUrl from '../../assets/logo.png'
 
 const page = usePage()
 const email = ref('')
@@ -19,8 +20,8 @@ function submit() {
   <div class="login-wrap">
     <div class="login-box">
       <div class="login-logo">
-        <div class="login-logo-icon">📖</div>
-        <div class="login-title">Diário de Leitura</div>
+        <img :src="logoUrl" alt="Bonfire" class="login-logo-img" />
+        <div class="login-title">Bonfire</div>
       </div>
       <div class="login-sub">Seu registro pessoal de leituras</div>
 
@@ -59,9 +60,9 @@ function submit() {
   border-radius: var(--r-lg); padding: 40px 32px; box-shadow: var(--shadow);
 }
 .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.login-logo-icon {
-  width: 36px; height: 36px; background: var(--accent); border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
+.login-logo-img {
+  width: 32px; height: 32px; object-fit: contain;
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
 }
 .login-title { font-family: var(--font-serif); font-size: 20px; font-weight: 600; }
 .login-sub { color: var(--text-3); font-size: 13px; margin-bottom: 28px; }

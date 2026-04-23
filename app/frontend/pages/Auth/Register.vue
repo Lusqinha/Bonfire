@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import logoUrl from '../../assets/logo.png'
 
 const page = usePage()
 const email = ref('')
@@ -27,8 +28,8 @@ function submit() {
     <div class="auth-box">
       <a href="/" class="auth-back">← Início</a>
       <div class="auth-logo">
-        <div class="auth-logo-icon">📖</div>
-        <div class="auth-title">Criar conta</div>
+        <img :src="logoUrl" alt="Bonfire" class="auth-logo-img" />
+        <div class="auth-title">Bonfire</div>
       </div>
       <div class="auth-sub">Comece a registrar suas leituras hoje</div>
 
@@ -92,9 +93,9 @@ function submit() {
 }
 .auth-back:hover { color: var(--text-2); }
 .auth-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.auth-logo-icon {
-  width: 36px; height: 36px; background: var(--accent); border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
+.auth-logo-img {
+  width: 32px; height: 32px; object-fit: contain;
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
 }
 .auth-title { font-family: var(--font-serif); font-size: 20px; font-weight: 600; }
 .auth-sub { color: var(--text-3); font-size: 13px; margin-bottom: 28px; }
