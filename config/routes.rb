@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
   # Auth
-  resource :session, path: "sessao"
+  resource :session, path: "sessao", path_names: { new: "nova" }
   resources :passwords, param: :token
-  resource :registration, path: "conta", only: %i[new create]
+  resource :registration, path: "conta", only: %i[new create], path_names: { new: "nova" }
 
   get "up" => "rails/health#show", as: :rails_health_check
 
