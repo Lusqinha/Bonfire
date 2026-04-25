@@ -357,4 +357,20 @@ function save() {
 .focus-mode .editor-footer { opacity: 0; transition: opacity 0.3s; }
 .editor-wrap.focus-mode:hover .editor-header,
 .editor-wrap.focus-mode:hover .editor-footer { opacity: 1; }
+
+@media (max-width: 768px) {
+  .editor-header { padding: 0 16px; gap: 8px; height: 52px; }
+  .editor-header .btn-secondary:last-child { display: none; } /* hide focus mode btn */
+  .editor-autosave { display: none; }
+  .editor-column { padding: 24px 16px 180px; }
+  .editor-footer {
+    bottom: 58px;
+    padding: 0 16px;
+    height: 52px;
+  }
+  .editor-footer span[style] { display: none; } /* hide ctrl+enter hint */
+  .editor-page-field { flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .editor-timestamp { margin-left: 0; width: 100%; order: 3; }
+  .editor-book-select { min-width: 0; max-width: 180px; font-size: 13px; }
+}
 </style>

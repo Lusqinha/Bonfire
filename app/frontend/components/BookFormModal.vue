@@ -18,7 +18,11 @@ const GRADIENTS = [
 const EMOJIS = ['📖','📚','🌍','🏔️','🌊','🎭','🔮','🌙','⚡','🎨','🧠','🌿']
 
 const query = ref('')
+const authorQuery = ref('')
+const publisherQuery = ref('')
+const showFilters = ref(false)
 const results = ref([])
+const searched = ref(false)
 const searching = ref(false)
 const searchTimer = ref(null)
 const step = ref('search') // 'search' | 'form'
@@ -31,29 +35,48 @@ const form = ref({
   cover_url: '',
 })
 
+// auto-search only when filters panel is closed
 watch(query, (val) => {
+  if (showFilters.value) return
   clearTimeout(searchTimer.value)
-  if (!val.trim()) { results.value = []; return }
-  if (val.trim().length < 3) return
-  searchTimer.value = setTimeout(() => searchGoogleBooks(val), 700)
+  if (!val.trim() || val.trim().length < 3) { results.value = []; searched.value = false; return }
+  searchTimer.value = setTimeout(() => runSearch(), 700)
 })
+
+function toggleFilters() {
+  showFilters.value = !showFilters.value
+  clearTimeout(searchTimer.value)
+}
+
+function handleKeydown(e) {
+  if (e.key === 'Enter') runSearch()
+}
+
+async function runSearch() {
+  const parts = [query.value.trim()]
+  if (authorQuery.value.trim()) parts.push(`inauthor:${authorQuery.value.trim()}`)
+  if (publisherQuery.value.trim()) parts.push(`inpublisher:${publisherQuery.value.trim()}`)
+  const q = parts.filter(Boolean).join(' ')
+  if (!q) return
+  await searchGoogleBooks(q)
+}
 
 async function searchGoogleBooks(q) {
   searching.value = true
+  searched.value = false
   try {
     const apiKey = document.querySelector('meta[name="google-books-api-key"]')?.getAttribute('content') || ''
     const params = new URLSearchParams({
       q,
-      maxResults: 10,
+      maxResults: 20,
       printType: 'books',
-      langRestrict: 'pt',
       country: 'BR',
       orderBy: 'relevance',
       ...(apiKey && { key: apiKey }),
     })
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?${params}`)
     const data = await res.json()
-    results.value = (data.items || []).map(item => {
+    const items = (data.items || []).map(item => {
       const v = item.volumeInfo
       return {
         title: v.title || '',
@@ -62,14 +85,21 @@ async function searchGoogleBooks(q) {
         publisher: v.publisher || '',
         year: v.publishedDate?.slice(0, 4) || '',
         pages: v.pageCount || '',
+        language: v.language || '',
         cover: v.imageLinks?.thumbnail?.replace('http:', 'https:').replace('zoom=1', 'zoom=3') || null,
         description: v.description?.slice(0, 200) || '',
       }
     })
+    // pt books first, then the rest
+    results.value = [
+      ...items.filter(i => i.language === 'pt'),
+      ...items.filter(i => i.language !== 'pt'),
+    ]
   } catch {
     results.value = []
   } finally {
     searching.value = false
+    searched.value = true
   }
 }
 
@@ -106,6 +136,7 @@ function save() {
 <template>
   <div class="overlay" @click="$emit('close')">
     <div class="modal" @click.stop>
+      <div class="modal-handle" />
       <div class="modal-header">
         <div class="modal-title">{{ step === 'search' ? 'Adicionar livro' : form.title || 'Novo livro' }}</div>
         <button @click="$emit('close')" style="color:var(--text-3)"><AppIcon name="x" :size="18" /></button>
@@ -113,14 +144,30 @@ function save() {
 
       <!-- STEP: SEARCH -->
       <template v-if="step === 'search'">
-        <div class="search-box">
-          <AppIcon name="search" :size="16" />
-          <input v-model="query" placeholder="Título, autor ou ISBN…" autofocus />
-          <div v-if="searching" class="spinner" />
+        <div class="search-area">
+          <div class="search-box">
+            <AppIcon name="search" :size="16" style="color:var(--text-3);flex-shrink:0" />
+            <input v-model="query" placeholder="Título ou ISBN…" autofocus @keydown="handleKeydown" />
+            <div v-if="searching" class="spinner" />
+            <button class="filter-toggle" :class="{ active: showFilters }" @click="toggleFilters" title="Mais filtros">
+              <AppIcon name="sliders" :size="15" />
+            </button>
+          </div>
+
+          <div v-if="showFilters" class="filters-row">
+            <div class="filter-fields">
+              <input v-model="authorQuery" class="filter-input" placeholder="Autor" @keydown="handleKeydown" />
+              <input v-model="publisherQuery" class="filter-input" placeholder="Editora" @keydown="handleKeydown" />
+            </div>
+            <button class="btn-search-icon" :disabled="searching || !query.trim()" @click="runSearch" title="Pesquisar">
+              <div v-if="searching" class="spinner" />
+              <AppIcon v-else name="search" :size="16" />
+            </button>
+          </div>
         </div>
 
         <div class="results">
-          <div v-if="results.length === 0 && query && !searching" class="no-results">
+          <div v-if="searched && results.length === 0 && !searching" class="no-results">
             Nenhum resultado.
             <button class="link-btn" @click="fillManual">Adicionar manualmente</button>
           </div>
@@ -142,11 +189,11 @@ function save() {
             <AppIcon name="chevronRight" :size="16" style="color:var(--text-3);flex-shrink:0" />
           </div>
 
-          <button v-if="query && results.length > 0" class="manual-btn" @click="fillManual">
+          <button v-if="searched && results.length > 0" class="manual-btn" @click="fillManual">
             Não encontrei — adicionar manualmente
           </button>
 
-          <div v-if="!query" class="hint">
+          <div v-if="!searched && !searching" class="hint">
             <button class="link-btn" @click="fillManual">Adicionar manualmente →</button>
           </div>
         </div>
@@ -246,13 +293,43 @@ function save() {
   flex-shrink: 0;
 }
 .modal-title { font-family: var(--font-serif); font-size: 18px; font-weight: 500; }
+.search-area { border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .search-box {
   display: flex; align-items: center; gap: 10px;
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  padding: 14px 16px;
 }
 .search-box input { flex: 1; font-size: 15px; background: none; border: none; outline: none; color: var(--text); }
 .search-box input::placeholder { color: var(--text-3); }
+.filter-toggle {
+  background: none; border: 1px solid transparent; border-radius: var(--r);
+  color: var(--text-3); cursor: pointer; padding: 4px 6px;
+  display: flex; align-items: center; transition: all 0.15s;
+}
+.filter-toggle:hover { color: var(--text-2); border-color: var(--border-2); }
+.filter-toggle.active { color: var(--accent); border-color: var(--accent-2); background: var(--accent-dim); }
+.filters-row {
+  display: flex; align-items: center; gap: 8px; padding: 0 12px 12px;
+}
+.filter-fields {
+  flex: 1; display: flex; gap: 6px;
+}
+.filter-input {
+  flex: 1; background: var(--bg-2); border: 1px solid var(--border-2);
+  border-radius: var(--r); padding: 7px 10px;
+  font-size: 13px; color: var(--text); outline: none; transition: border-color 0.15s;
+  min-width: 0;
+}
+.filter-input::placeholder { color: var(--text-3); }
+.filter-input:focus { border-color: var(--accent-2); }
+.btn-search-icon {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: var(--r); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-search-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-search-icon:not(:disabled):hover { opacity: 0.85; }
 .spinner {
   width: 16px; height: 16px; border-radius: 50%;
   border: 2px solid var(--border-2); border-top-color: var(--accent);
@@ -340,4 +417,31 @@ function save() {
   display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
 }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+.modal-handle { display: none; }
+
+@media (max-width: 768px) {
+  .modal-handle {
+    display: block; width: 36px; height: 4px;
+    background: var(--border-2); border-radius: 2px;
+    margin: 10px auto 0; flex-shrink: 0;
+  }
+  .modal-header { padding: 12px 16px 12px; }
+  .modal-title { font-size: 16px; }
+  .search-box { padding: 10px 12px; }
+  .search-box input { font-size: 16px; } /* 16px evita zoom no iOS */
+  .filters-row { padding: 0 12px 10px; flex-wrap: wrap; gap: 6px; }
+  .filter-fields { flex-direction: column; gap: 6px; }
+  .filter-input { font-size: 16px; }
+  .btn-search-icon { width: 100%; border-radius: var(--r); height: 36px; }
+  .results { padding: 4px; }
+  .result-item { padding: 8px; gap: 10px; }
+  .result-desc { display: none; } /* economiza espaço */
+  .form-body { padding: 12px 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .field.half { grid-column: unset; }
+  .emoji-btn { width: 32px; height: 32px; font-size: 16px; }
+  .gradient-btn { width: 36px; height: 24px; }
+  .form-footer { padding: 10px 16px; }
+}
 </style>

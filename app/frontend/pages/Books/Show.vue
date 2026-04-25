@@ -391,4 +391,35 @@ function deleteNote(noteId) {
   padding: 14px 20px; border-top: 1px solid var(--border);
   display: flex; justify-content: flex-end; gap: 10px;
 }
+
+@media (max-width: 768px) {
+  .book-hero { padding: 16px 16px 0 !important; }
+  .back-btn { margin-bottom: 14px; }
+  .book-hero-inner { flex-direction: column; gap: 14px; }
+  .book-hero-cover { width: 80px !important; height: 112px !important; }
+  .book-hero-title { font-size: 20px !important; }
+  .book-hero-author { font-size: 13px; margin-bottom: 10px; }
+  .book-tabs { overflow-x: auto; scrollbar-width: none; }
+  .book-tabs::-webkit-scrollbar { display: none; }
+  .book-tab { white-space: nowrap; padding: 10px 14px !important; }
+  .book-content { padding: 16px 16px 80px !important; }
+
+  /* Timeline: stacked layout */
+  .timeline-entry { flex-direction: column; gap: 6px; padding: 14px 0; }
+  .tl-dot { display: none; }
+  .tl-date {
+    width: auto !important; display: flex; align-items: center;
+    gap: 6px; flex-direction: row;
+  }
+  .tl-day { font-size: 12px; color: var(--text-3); font-weight: 500; }
+  .tl-time { font-size: 11px; }
+  .tl-body { flex: unset; }
+
+  /* FAB above bottom nav */
+  .fab { bottom: 74px !important; right: 16px !important; width: 44px !important; height: 44px !important; }
+
+  /* Note modal full-width on mobile */
+  .note-overlay { padding: 0 !important; align-items: flex-end; }
+  .note-modal { border-radius: var(--r-lg) var(--r-lg) 0 0 !important; }
+}
 </style>

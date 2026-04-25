@@ -19,6 +19,7 @@ const editorBook = ref(null)
 const bookFormOpen = ref(false)
 const toast = ref(null)
 const searchRef = ref(null)
+const statusMenu = ref(null) // { bookId, x, y }
 
 const counts = computed(() => ({
   all: props.books.length,
@@ -69,8 +70,31 @@ function badgeClass(status) {
 function badgeLabel(status) {
   if (status === 'reading') return 'Lendo'
   if (status === 'read') return 'Lido'
-  return 'Tenho'
+  return 'Quero ler'
 }
+
+const STATUS_ACTIONS = {
+  want:    [{ label: 'Começar a ler', status: 'reading' }],
+  reading: [{ label: 'Pausar leitura', status: 'want' }, { label: 'Marcar como lido', status: 'read' }],
+  read:    [{ label: 'Ler novamente', status: 'reading' }, { label: 'Voltar para lista', status: 'want' }],
+}
+
+function openStatusMenu(e, book) {
+  e.stopPropagation()
+  if (statusMenu.value?.bookId === book.id) { statusMenu.value = null; return }
+  const rect = e.currentTarget.getBoundingClientRect()
+  statusMenu.value = { bookId: book.id, x: rect.left, y: rect.bottom + 6 }
+}
+
+function setStatus(book, status) {
+  statusMenu.value = null
+  router.patch(`/livros/${book.id}`, { book: { status } }, {
+    preserveScroll: true,
+    onSuccess: () => showToast('Status atualizado'),
+  })
+}
+
+function closeStatusMenu() { statusMenu.value = null }
 
 function handleKeydown(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return
@@ -85,6 +109,24 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 </script>
 
 <template>
+  <!-- Status menu -->
+  <teleport to="body">
+    <div v-if="statusMenu" class="status-menu-backdrop" @click="closeStatusMenu">
+      <div
+        class="status-menu"
+        :style="{ top: statusMenu.y + 'px', left: statusMenu.x + 'px' }"
+        @click.stop
+      >
+        <button
+          v-for="action in STATUS_ACTIONS[books.find(b => b.id === statusMenu.bookId)?.status]"
+          :key="action.status"
+          class="status-menu-item"
+          @click="setStatus(books.find(b => b.id === statusMenu.bookId), action.status)"
+        >{{ action.label }}</button>
+      </div>
+    </div>
+  </teleport>
+
   <MarkdownEditor
     v-if="editorOpen"
     :books="books"
@@ -156,7 +198,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             <div class="book-card-title">{{ book.title }}</div>
             <div class="book-card-author">{{ book.author }}</div>
             <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
-              <span :class="['header-badge', badgeClass(book.status)]">{{ badgeLabel(book.status) }}</span>
+              <button :class="['header-badge', 'badge-btn', badgeClass(book.status)]" @click="openStatusMenu($event, book)">{{ badgeLabel(book.status) }}</button>
             </div>
             <ProgressBar v-if="book.status === 'reading'" :value="book.current_page" :total="book.pages" style="margin-top:8px" />
           </div>
@@ -182,15 +224,15 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           </div>
           <div class="book-list-info">
             <div class="book-list-title">{{ book.title }}</div>
-            <div class="book-list-author">{{ book.author }} · {{ book.year }}</div>
+            <div class="book-list-author">{{ book.author }}<template v-if="book.year"> · {{ book.year }}</template></div>
+            <div class="book-list-row2">
+              <button :class="['header-badge', 'badge-btn', badgeClass(book.status)]" @click="openStatusMenu($event, book)">{{ badgeLabel(book.status) }}</button>
+              <span v-if="book.pages" class="book-list-detail">{{ book.pages }} p.</span>
+              <span v-if="book.entries_count > 0" class="book-list-detail">{{ book.entries_count }} entrada{{ book.entries_count > 1 ? 's' : '' }}</span>
+            </div>
             <ProgressBar v-if="book.status === 'reading'" :value="book.current_page" :total="book.pages" style="margin-top:6px;max-width:200px" />
           </div>
-          <div class="book-list-meta">
-            <span :class="['header-badge', badgeClass(book.status)]">{{ badgeLabel(book.status) }}</span>
-            <span style="font-size:12px;color:var(--text-3)">{{ book.pages }} p.</span>
-            <span v-if="book.entries_count > 0" style="font-size:12px;color:var(--text-3)">{{ book.entries_count }} entrada{{ book.entries_count > 1 ? 's' : '' }}</span>
-          </div>
-          <AppIcon name="chevronRight" :size="16" />
+          <AppIcon name="chevronRight" :size="16" style="flex-shrink:0;color:var(--text-3)" />
         </div>
       </div>
     </div>
@@ -270,9 +312,40 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 }
 .book-list-item:hover { background: var(--bg-1); border-color: var(--border); }
 .book-list-info { flex: 1; min-width: 0; }
-.book-list-title { font-family: var(--font-serif); font-size: 15px; font-weight: 500; }
-.book-list-author { font-size: 12px; color: var(--text-2); }
-.book-list-meta { display: flex; align-items: center; gap: 12px; }
+.book-list-title {
+  font-family: var(--font-serif); font-size: 15px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.book-list-author { font-size: 12px; color: var(--text-2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.book-list-row2 { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.book-list-detail { font-size: 11px; color: var(--text-3); }
+
+@media (max-width: 768px) {
+  .book-list { padding: 0 12px 24px !important; gap: 4px; }
+  .book-list-item { padding: 10px 12px; gap: 12px; }
+  .book-list-title { font-size: 14px; }
+}
+.badge-btn {
+  cursor: pointer; border: none; font-family: inherit; font-size: inherit;
+  transition: opacity 0.15s;
+}
+.badge-btn:hover { opacity: 0.8; }
+.status-menu-backdrop {
+  position: fixed; inset: 0; z-index: 300;
+}
+.status-menu {
+  position: fixed; z-index: 301;
+  background: var(--bg-1); border: 1px solid var(--border-2);
+  border-radius: var(--r); box-shadow: var(--shadow);
+  padding: 4px; min-width: 160px;
+}
+.status-menu-item {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 12px; font-size: 13px; color: var(--text);
+  background: none; border: none; border-radius: 6px;
+  cursor: pointer; transition: background 0.1s;
+}
+.status-menu-item:hover { background: var(--bg-2); }
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
   background: var(--bg-2); border: 1px solid var(--border-2);

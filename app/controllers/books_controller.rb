@@ -28,7 +28,7 @@ class BooksController < ApplicationController
 
   def update
     if @book.update(book_params)
-      redirect_to book_path(@book)
+      redirect_back fallback_location: book_path(@book)
     else
       redirect_back fallback_location: book_path(@book), alert: @book.errors.full_messages.to_sentence
     end

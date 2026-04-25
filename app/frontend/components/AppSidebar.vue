@@ -131,6 +131,9 @@ function navigate(screen, book = null) {
 }
 .nav-item:hover { background: var(--bg-2); color: var(--text); }
 .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+@media (max-width: 768px) {
+  .sidebar { display: none !important; }
+}
 .collapse-btn {
   position: absolute; right: -12px; top: 22px;
   width: 24px; height: 24px; border-radius: 50%;

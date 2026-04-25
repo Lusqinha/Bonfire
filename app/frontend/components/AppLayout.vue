@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import AppSidebar from './AppSidebar.vue'
 import CommandPalette from './CommandPalette.vue'
 import ShortcutsModal from './ShortcutsModal.vue'
@@ -93,6 +94,36 @@ function badgeLabel(status) {
     />
     <ShortcutsModal v-if="shortcutsOpen" @close="shortcutsOpen = false" />
 
+    <!-- bottom nav: mobile only -->
+    <nav class="bottom-nav">
+      <button
+        :class="['bnav-item', { active: currentScreen === 'library' }]"
+        @click="$emit('navigate', 'library')"
+      >
+        <AppIcon name="library" :size="22" />
+        <span>Biblioteca</span>
+      </button>
+      <button
+        :class="['bnav-item', { active: currentScreen === 'book' }]"
+        @click="currentBook ? $emit('navigate', 'book', currentBook) : $emit('navigate', 'library')"
+      >
+        <AppIcon name="book" :size="22" />
+        <span>Lendo</span>
+      </button>
+      <button class="bnav-item bnav-cta" @click="$emit('openEditor', null)">
+        <AppIcon name="pen" :size="20" />
+        <span>Entrada</span>
+      </button>
+      <button class="bnav-item" @click="cmdOpen = true">
+        <AppIcon name="search" :size="22" />
+        <span>Buscar</span>
+      </button>
+      <button class="bnav-item" @click="router.delete('/sessao')">
+        <AppIcon name="logout" :size="22" />
+        <span>Sair</span>
+      </button>
+    </nav>
+
     <slot name="toast" />
   </div>
 </template>
@@ -121,4 +152,32 @@ function badgeLabel(status) {
 }
 .cmd-btn:hover { border-color: var(--border-2); color: var(--text); }
 .main-content { flex: 1; overflow-y: auto; }
+
+.bottom-nav { display: none; }
+
+@media (max-width: 768px) {
+  .main { left: 0 !important; bottom: 58px; }
+  .app-header { display: none; }
+  .cmd-btn .kbd { display: none; }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 58px; z-index: 200;
+    background: var(--bg-1); border-top: 1px solid var(--border);
+    padding: 0 4px env(safe-area-inset-bottom, 0);
+  }
+  .bnav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    font-size: 10px; color: var(--text-3);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 4px; border-radius: var(--r);
+    transition: color 0.15s;
+  }
+  .bnav-item:hover, .bnav-item.active { color: var(--accent); }
+  .bnav-cta {
+    color: var(--accent);
+  }
+}
 </style>

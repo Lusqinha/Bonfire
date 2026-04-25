@@ -153,4 +153,22 @@ function statusLabel(b) {
   display: flex; gap: 16px; align-items: center;
 }
 .cmd-hint { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-3); }
+
+@media (max-width: 768px) {
+  .overlay {
+    align-items: flex-start;
+    padding-top: 0;
+    background: #00000080;
+  }
+  .cmd-palette {
+    width: 100%;
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    border-left: none; border-right: none; border-top: none;
+    max-height: 70dvh;
+    display: flex; flex-direction: column;
+  }
+  .cmd-results { flex: 1; max-height: unset; overflow-y: auto; }
+  .cmd-footer { display: none; }
+  .cmd-search input { font-size: 16px; }
+}
 </style>
