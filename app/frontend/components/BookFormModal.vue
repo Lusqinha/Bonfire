@@ -34,12 +34,14 @@ const form = ref({
 watch(query, (val) => {
   clearTimeout(searchTimer.value)
   if (!val.trim()) { results.value = []; return }
-  searchTimer.value = setTimeout(() => searchGoogleBooks(val), 400)
+  if (val.trim().length < 3) return
+  searchTimer.value = setTimeout(() => searchGoogleBooks(val), 700)
 })
 
 async function searchGoogleBooks(q) {
   searching.value = true
   try {
+    const apiKey = document.querySelector('meta[name="google-books-api-key"]')?.getAttribute('content') || ''
     const params = new URLSearchParams({
       q,
       maxResults: 10,
@@ -47,6 +49,7 @@ async function searchGoogleBooks(q) {
       langRestrict: 'pt',
       country: 'BR',
       orderBy: 'relevance',
+      ...(apiKey && { key: apiKey }),
     })
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?${params}`)
     const data = await res.json()

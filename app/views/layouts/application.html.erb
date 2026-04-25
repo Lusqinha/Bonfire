@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="google-books-api-key" content="<%= Rails.application.credentials.google_books_api_key %>">
     <link rel="icon" href="/icon.png" type="image/png">
     <%= vite_client_tag %>
     <%= vite_javascript_tag 'application' %>
